@@ -1,0 +1,11 @@
+{
+    "vegan": {
+        "avoid": ["gelatin", "honey", "carmine", "casein", "lactose", "whey", "shellac", "albumin", "collagen", "isenglass", "lard", "anchovy", "fish", "meat"]
+    },
+    "vegetarian": {
+        "avoid": ["gelatin", "rennet", "carmine", "lard", "anchovy", "fish", "meat"]
+    },
+    "gluten-free": {
+        "avoid": ["wheat", "barley", "rye", "malt", "brewer's yeast", "oats (unless gluten-free)"]
+    }
+}
