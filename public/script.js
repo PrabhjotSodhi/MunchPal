@@ -20,9 +20,9 @@ function highlightIngredients(ingredients, vegan, vegetarian, glutenFree) {
         if (vegan && dietary.vegan.avoid.some(item => ingredient.toLowerCase().includes(item))) {
             style = 'color: red;';
         } else if (vegetarian && dietary.vegetarian.avoid.some(item => ingredient.toLowerCase().includes(item))) {
-            style = 'color: yellow;';
+            style = 'color: red;';
         } else if (glutenFree && dietary['gluten-free'].avoid.some(item => ingredient.toLowerCase().includes(item))) {
-            style = 'color: yellow;';
+            style = 'color: red;';
         }
 
         return `<span style="${style}">${ingredient}</span>`;
