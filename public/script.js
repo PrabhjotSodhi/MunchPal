@@ -8,21 +8,17 @@ async function fetchDietary() {
 }
 
 function highlightIngredients(ingredients, vegan, vegetarian, glutenFree) {
-    if (!ingredients) {
-        return "No ingredients listed";
-    }
-
     const ingredientList = ingredients.split(', ');
 
     return ingredientList.map(ingredient => {
         let style = '';
 
         if (vegan && dietary.vegan.avoid.some(item => ingredient.toLowerCase().includes(item))) {
-            style = 'color: red;';
+            style = 'color: #ff8a8a;';
         } else if (vegetarian && dietary.vegetarian.avoid.some(item => ingredient.toLowerCase().includes(item))) {
-            style = 'color: yellow;';
+            style = 'color: #ff8a8a;';
         } else if (glutenFree && dietary['gluten-free'].avoid.some(item => ingredient.toLowerCase().includes(item))) {
-            style = 'color: yellow;';
+            style = 'color: #ff8a8a;';
         }
 
         return `<span style="${style}">${ingredient}</span>`;
@@ -42,18 +38,20 @@ async function searchProduct() {
     resultsDiv.innerHTML = '';
 
     products.forEach(product => {
-        const productDiv = document.createElement('div');
-        productDiv.classList.add('product');
+        if (product.ingredients) {
+            const productDiv = document.createElement('div');
+            productDiv.classList.add('product');
 
-        productDiv.innerHTML = `
-            <img src="${product.image}" alt="${product.name}">
-            <div>
-                <h2>${product.name}</h2>
-                <p><strong>Ingredients:</strong> ${highlightIngredients(product.ingredients, vegan, vegetarian, glutenFree)}</p>
-            </div>
-        `;
+            productDiv.innerHTML = `
+                <img src="${product.image}" alt="${product.name}">
+                <div>
+                    <h2>${product.name}</h2>
+                    <p><strong>Ingredients:</strong> ${highlightIngredients(product.ingredients, vegan, vegetarian, glutenFree)}</p>
+                </div>
+            `;
 
-        resultsDiv.appendChild(productDiv);
+            resultsDiv.appendChild(productDiv);
+        }
     });
 }
 

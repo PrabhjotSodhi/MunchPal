@@ -5,27 +5,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MunchPal Search</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Search OpenFoodFacts Products</h1>
-        <div class="search-bar">
-            <input type="text" id="product-search" placeholder="Search for a product...">
-            <button onclick="searchProduct()">Search</button>
-        </div>
-        <div class="filters">
-            <label>
-                <input type="checkbox" id="vegan" value="vegan"> Vegan
-            </label>
-            <label>
-                <input type="checkbox" id="vegetarian" value="vegetarian"> Vegetarian
-            </label>
-            <label>
-                <input type="checkbox" id="gluten-free" value="gluten-free"> Gluten Free
-            </label>
-        </div>
-        <div id="results"></div>
+        <header>
+            <img src="munchpal-logo.svg" alt="MunchPal Logo" style="height: 4rem;">
+        </header>
+        <main>
+            <div class="search-container">
+                <input type="text" id="product-search" placeholder="Search for a product...">
+                <button onclick="searchProduct()">Search</button>
+            </div>
+            <div class="dietary-options">
+                <div class="option">
+                    <input type="checkbox" id="vegan" class="hidden-checkbox">
+                    <label for="vegan" class="label-btn">Vegan</label>
+                </div>
+                <div class="option">
+                    <input type="checkbox" id="vegetarian" class="hidden-checkbox">
+                    <label for="vegetarian" class="label-btn">Vegetarian</label>
+                </div>
+                <div class="option">
+                    <input type="checkbox" id="gluten-free" class="hidden-checkbox">
+                    <label for="gluten-free" class="label-btn">Gluten Free</label>
+                </div>
+            </div>
+            <div id="results"></div>
+        </main>
     </div>
     <script src="script.js"></script>
 </body>
