@@ -13,13 +13,16 @@ function highlightIngredients(ingredients, vegan, vegetarian, glutenFree) {
     return ingredientList.map(ingredient => {
         let style = '';
 
-        if (vegan && dietary.vegan.avoid.some(item => ingredient.toLowerCase().includes(item))) {
-            style = 'color: #ff8a8a;';
-        } else if (vegetarian && dietary.vegetarian.avoid.some(item => ingredient.toLowerCase().includes(item))) {
-            style = 'color: #ff8a8a;';
-        } else if (glutenFree && dietary['gluten-free'].avoid.some(item => ingredient.toLowerCase().includes(item))) {
-            style = 'color: #ff8a8a;';
+        for (let diet of Object.keys(dietary)) {
+            if (dietary[diet].avoid.some(item => ingredient.toLowerCase().includes(item))) {
+                style = 'color: #e84c3d;';
+                break;
+            } else if (dietary[diet].maybe.some(item => ingredient.toLowerCase().includes(item))) {
+                style = 'color: #f39c11;';
+                break;
+            }
         }
+
 
         return `<span style="${style}">${ingredient}</span>`;
     }).join(', ');

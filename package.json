@@ -8,7 +8,7 @@
     "start": "node server.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "MunchPal",
   "license": "ISC",
   "dependencies": {
     "axios": "^1.7.2",
