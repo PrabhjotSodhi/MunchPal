@@ -32,6 +32,31 @@ function highlightIngredients(ingredients, vegan, vegetarian, glutenFree) {
     }).join(', ');
 }
 
+async function searchProductOnSupabase() {
+    const response = await fetch(`/supabase?product=${productSearch}`);
+    const products = await response.json();
+
+    const resultsDiv = document.getElementById('results');
+    resultsDiv.innerHTML = '';
+    
+
+    products.forEach(async (product) => {
+        const productDiv = document.createElement('div');
+        productDiv.classList.add('product');
+        const highlightedIngredients = await highlightIngredients(product.ingredients, dietary);
+    
+        productDiv.innerHTML = `
+            <img src="${product.image}" alt="${product.name}">
+            <div>
+                <h2>${product.name}</h2>
+                <p><strong>Ingredients:</strong> ${highlightedIngredients}</p>
+            </div>
+        `;
+    
+        resultsDiv.appendChild(productDiv);
+    });
+}
+
 async function searchProduct() {
     const productSearch = document.getElementById('product-search').value;
     const vegan = document.getElementById('vegan').checked;
