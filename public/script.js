@@ -1,5 +1,5 @@
 // public/script.js
-
+const { searchProductByName, highlightIngredientsAI } = require('./supabase_script.js');
 let dietary = {};
 
 async function fetchDietary() {
@@ -26,6 +26,31 @@ function highlightIngredients(ingredients, vegan, vegetarian, glutenFree) {
 
         return `<span style="${style}">${ingredient}</span>`;
     }).join(', ');
+}
+
+async function searchProductOnSupabase() {
+    const productSearch = document.getElementById('product-search').value;
+    const dietary = document.getElementById('dietary').value;
+    const products = await searchProductByName(productSearch);
+
+    const resultsDiv = document.getElementById('results');
+    resultsDiv.innerHTML = '';
+
+    await Promise.all(products.map(async (product) => {
+        const productDiv = document.createElement('div');
+        productDiv.classList.add('product');
+        const highlightedIngredients = await highlightIngredientsAI(product.ingredients, dietary);
+
+        productDiv.innerHTML = `
+            <img src="${product.image}" alt="${product.name}">
+            <div>
+                <h2>${product.name}</h2>
+                <p><strong>Ingredients:</strong> ${highlightedIngredients}</p>
+            </div>
+        `;
+
+        resultsDiv.appendChild(productDiv);
+    }));
 }
 
 async function searchProduct() {
