@@ -8,10 +8,6 @@ async function fetchDietary() {
 }
 
 function highlightIngredients(ingredients, vegan, vegetarian, glutenFree) {
-    if (!ingredients) {
-        return "No ingredients listed";
-    }
-
     const ingredientList = ingredients.split(', ');
 
     return ingredientList.map(ingredient => {
@@ -70,18 +66,20 @@ async function searchProduct() {
     resultsDiv.innerHTML = '';
 
     products.forEach(product => {
-        const productDiv = document.createElement('div');
-        productDiv.classList.add('product');
+        if (product.ingredients) {
+            const productDiv = document.createElement('div');
+            productDiv.classList.add('product');
 
-        productDiv.innerHTML = `
-            <img src="${product.image}" alt="${product.name}">
-            <div>
-                <h2>${product.name}</h2>
-                <p><strong>Ingredients:</strong> ${highlightIngredients(product.ingredients, vegan, vegetarian, glutenFree)}</p>
-            </div>
-        `;
+            productDiv.innerHTML = `
+                <img src="${product.image}" alt="${product.name}">
+                <div>
+                    <h2>${product.name}</h2>
+                    <p><strong>Ingredients:</strong> ${highlightIngredients(product.ingredients, vegan, vegetarian, glutenFree)}</p>
+                </div>
+            `;
 
-        resultsDiv.appendChild(productDiv);
+            resultsDiv.appendChild(productDiv);
+        }
     });
 }
 
