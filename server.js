@@ -27,7 +27,6 @@ app.get('/supabase', async (req, res) => {
         if (!products || products.length === 0) {
             return res.status(404).send('No products found.');
         }
-
         res.json(products); // Send the found products as a JSON response
     } catch (error) {
         console.error('Error in /supabase endpoint:', error);
