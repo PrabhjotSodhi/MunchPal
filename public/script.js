@@ -1,5 +1,5 @@
 // public/script.js
-
+const { searchProductByName, highlightIngredientsAI } = require('./supabase_script.js');
 let dietary = {};
 
 async function fetchDietary() {
@@ -8,10 +8,6 @@ async function fetchDietary() {
 }
 
 function highlightIngredients(ingredients, vegan, vegetarian, glutenFree) {
-    if (!ingredients) {
-        return "No ingredients listed";
-    }
-
     const ingredientList = ingredients.split(', ');
 
     return ingredientList.map(ingredient => {
@@ -32,6 +28,31 @@ function highlightIngredients(ingredients, vegan, vegetarian, glutenFree) {
     }).join(', ');
 }
 
+async function searchProductOnSupabase() {
+    const productSearch = document.getElementById('product-search').value;
+    const dietary = document.getElementById('dietary').value;
+    const products = await searchProductByName(productSearch);
+
+    const resultsDiv = document.getElementById('results');
+    resultsDiv.innerHTML = '';
+
+    await Promise.all(products.map(async (product) => {
+        const productDiv = document.createElement('div');
+        productDiv.classList.add('product');
+        const highlightedIngredients = await highlightIngredientsAI(product.ingredients, dietary);
+
+        productDiv.innerHTML = `
+            <img src="${product.image}" alt="${product.name}">
+            <div>
+                <h2>${product.name}</h2>
+                <p><strong>Ingredients:</strong> ${highlightedIngredients}</p>
+            </div>
+        `;
+
+        resultsDiv.appendChild(productDiv);
+    }));
+}
+
 async function searchProduct() {
     const productSearch = document.getElementById('product-search').value;
     const vegan = document.getElementById('vegan').checked;
@@ -45,18 +66,20 @@ async function searchProduct() {
     resultsDiv.innerHTML = '';
 
     products.forEach(product => {
-        const productDiv = document.createElement('div');
-        productDiv.classList.add('product');
+        if (product.ingredients) {
+            const productDiv = document.createElement('div');
+            productDiv.classList.add('product');
 
-        productDiv.innerHTML = `
-            <img src="${product.image}" alt="${product.name}">
-            <div>
-                <h2>${product.name}</h2>
-                <p><strong>Ingredients:</strong> ${highlightIngredients(product.ingredients, vegan, vegetarian, glutenFree)}</p>
-            </div>
-        `;
+            productDiv.innerHTML = `
+                <img src="${product.image}" alt="${product.name}">
+                <div>
+                    <h2>${product.name}</h2>
+                    <p><strong>Ingredients:</strong> ${highlightIngredients(product.ingredients, vegan, vegetarian, glutenFree)}</p>
+                </div>
+            `;
 
-        resultsDiv.appendChild(productDiv);
+            resultsDiv.appendChild(productDiv);
+        }
     });
 }
 
