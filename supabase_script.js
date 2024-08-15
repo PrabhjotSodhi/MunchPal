@@ -15,31 +15,26 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 // Define the function to search for products by name
 export async function searchProductByName(query) {
     try {
-        // Perform a case-insensitive search on the 'name' column for the query string
         const { data, error } = await supabase
             .from('products')
             .select('id, name, ingredients, category')
-            .ilike('name', query, {config: 'english', type: 'plain'})
+            .textSearch('name', query, { type: 'plain', config: 'english' })
             .range(0, 9);
 
         if (error) throw error;
 
-        const productsWithImages = await Promise.all(data.map(async (product) => {
-            const imagePath = `${product.id}.jpg`; // Assuming the image name format is "ID.jpg"
-            const { data, error: imageError } = await supabase
+        if (!data || data.length === 0) {
+            return [];  // Return an empty array if no products found
+        }
+
+        return await Promise.all(data.map(async (product) => {
+            const { data: imageData, error: imageError } = await supabase
                 .storage
-                .from('product-images') // Assuming the bucket name is 'product-images'
-                .getPublicUrl(imagePath);
-
-            if (imageError) {
-                console.error('Error fetching product image:', imageError);
-                return { ...product, image: null }; // Return product without image if there's an error
-            }
-
-            return { ...product, image: data.publicUrl }; // Append the image URL to the product object
+                .from('product-images')
+                .getPublicUrl(`${product.id}.jpg`);
+            
+            return { ...product, image: imageError ? null : imageData.publicUrl };
         }));
-
-        return productsWithImages;
     } catch (error) {
         console.error('Error searching for products:', error);
         return null;
@@ -48,35 +43,27 @@ export async function searchProductByName(query) {
 
 // Function to filter ingredients based on dietary requirements
 export async function highlightIngredientsAI(ingredients, dietaryRequirements) {
-    const openai = new OpenAI({
-        apiKey: process.env.OPENAI_API_KEY,
-    });
-
-    const structure = z.object({
-        no: z.array(z.string()).optional(),
-        maybe: z.array(z.string()).optional(),
-    });
-
     try {
-        const prompt = `Evaluate if the ingredient list "${ingredients}" is compliant with the following dietary requirements: ${dietaryRequirements}. Provide valid JSON output of 'no' and 'maybe' with ingredients categorized accordingly.`;
-        
+        const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
         const response = await openai.beta.chat.completions.parse({
-            model: "gpt-4o-2024-08-06", 
-            response_format: zodResponseFormat(structure, "dietary_exclusion"),
+            model: "gpt-4o-2024-08-06",
+            response_format: zodResponseFormat(
+                z.object({
+                    no: z.array(z.string()).optional(),
+                    maybe: z.array(z.string()).optional(),
+                }),
+                "dietary_exclusion"
+            ),
             messages: [
                 { role: "system", content: `Categorize the ingredients into 'no' or 'maybe' based on the user's dietary needs.` },
-                { role: "user", content: prompt }
+                { role: "user", content: `Evaluate if the ingredient list "${ingredients}" is compliant with the following dietary requirements: ${dietaryRequirements}. Provide valid JSON output of 'no' and 'maybe' with ingredients categorized accordingly.` }
             ],
             temperature: 0.2,
             max_tokens: 1024,
-            top_p: 1.0,
-            frequency_penalty: 0.0,
-            presence_penalty: 0.0,
         });
 
-        const parsedResponse = response.choices[0].message.parsed;
-        console.log('Highlighting Response:', parsedResponse); // Debug log
-        return parsedResponse;
+        return response.choices[0]?.message?.parsed || { no: [], maybe: [] };
     } catch (error) {
         console.error('Error querying OpenAI:', error);
         return { no: [], maybe: [] };

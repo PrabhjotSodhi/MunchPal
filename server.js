@@ -23,35 +23,33 @@ app.get('/dietary', (req, res) => {
 });
 
 app.get('/supabase', async (req, res) => {
-    const query = req.query.query; // Use the correct query parameter name
     try {
-        // Call searchProductByName to get products based on the query
-        const products = await searchProductByName(query);
+        const products = await searchProductByName(req.query.query);
+
         if (!products || products.length === 0) {
-            return res.status(404).json({ message: 'No products found.' }); // Return a JSON response
+            return res.status(404).json({ message: 'No products found :(' });
         }
-        res.json(products); // Send the found products as a JSON response
+
+        res.json(products);
     } catch (error) {
         console.error('Error in /supabase endpoint:', error);
-        res.status(500).json({ message: 'Error occurred while processing your request.' }); // Return JSON response for errors
+        res.status(500).json({ message: 'Error occurred while processing your request.' });
     }
 });
 
 app.get('/highlight', async (req, res) => {
-    const ingredients = req.query.ingredients; 
-    const dietary = req.query.dietary;
-
     try {
-        const highlightedProducts = await highlightIngredientsAI(ingredients, dietary);
-        if (!highlightedProducts || (highlightedProducts.no.length === 0 && highlightedProducts.maybe.length === 0)) {
+        const highlightedProducts = await highlightIngredientsAI(req.query.ingredients, req.query.dietary);
+        if (!highlightedProducts.no.length && !highlightedProducts.maybe.length) {
             return res.status(404).json({ message: 'No highlighted products found.' });
         }
-        res.json(highlightedProducts); // Directly return the highlighted ingredients
+        res.json(highlightedProducts);
     } catch (error) {
         console.error('Error in /highlight endpoint:', error);
         res.status(500).json({ message: 'Error occurred while processing your request.' });
     }
 });
+
 
 app.get('/search', async (req, res) => {
     const product = req.query.product;

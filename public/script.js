@@ -27,7 +27,7 @@ function highlightIngredients(ingredients, vegan, vegetarian, glutenFree) {
             }
         }
 
-        return `<span style="${style}">${ingredient}</span>`;
+        return `<span style="${style}; margin: 0; padding: 0;">${ingredient}</span>`;
     }).join(', ');
 }
 
@@ -35,64 +35,55 @@ async function searchProductOnSupabase() {
     console.log('searchProductOnSupabase called');
     const productSearch = document.getElementById('product-search').value;
     const dietary = document.getElementById('dietary').value;
-    
+    const resultsDiv = document.getElementById('results');
+    resultsDiv.innerHTML = '';
+
     try {
-        const response = await fetch(`/supabase?query=${productSearch}`);
+        const response = await fetch(`/supabase?query=${encodeURIComponent(productSearch)}`);
         const contentType = response.headers.get('content-type');
 
-        if (contentType && contentType.includes('application/json')) {
-            const products = await response.json();
-            const resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = '';
+        // Check if response is OK and of expected content type
+        if (!response.ok) {
+            const errorMessage = await response.json();
+            throw new Error(errorMessage.message || 'Unknown error occurred');
+        }
+        if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('Invalid response format');
+        }
 
-            await Promise.all(products.map(async (product) => {
-                const productDiv = document.createElement('div');
-                productDiv.classList.add('product');
-                
-                const highlightedIngredientsResponse = await fetch(`/highlight?ingredients=${encodeURIComponent(product.ingredients.join(', '))}&dietary=${encodeURIComponent(dietary)}`);
-                const highlightedIngredientsContentType = highlightedIngredientsResponse.headers.get('content-type');
-                
-                let highlightedIngredients = { no: [], maybe: [] };
-                if (highlightedIngredientsContentType && highlightedIngredientsContentType.includes('application/json')) {
-                    const highlightedData = await highlightedIngredientsResponse.json();
-                    highlightedIngredients = highlightedData; 
-                    console.log('Highlighted Ingredients:', highlightedIngredients); // Debug log
-                } else {
-                    console.error('Unexpected response format for highlighted ingredients');
-                }
+        const products = await response.json();
 
-                let ingredientsHTML = product.ingredients.map(ingredient => {
-                    let style = '';
+        await Promise.all(products.map(async (product) => {
+            const highlightResponse = await fetch(`/highlight?ingredients=${encodeURIComponent(product.ingredients.join(', '))}&dietary=${encodeURIComponent(dietary)}`);
+            const highlightContentType = highlightResponse.headers.get('content-type');
 
-                    if (highlightedIngredients.no.includes(ingredient)) {
-                        style = 'color: #e84c3d;'; // Red for "no"
-                    } else if (highlightedIngredients.maybe.includes(ingredient)) {
-                        style = 'color: #f39c11;'; // Yellow for "maybe"
-                    }
+            const highlightedIngredients = (highlightContentType && highlightContentType.includes('application/json')) 
+                ? await highlightResponse.json() 
+                : { no: [], maybe: [] };
 
-                    return `<span style="${style}">${ingredient}</span>`;
-                }).join(', ');
+            const ingredientsHTML = product.ingredients.map(ingredient => {
+                const style = highlightedIngredients.no.includes(ingredient) ? 'color: #e84c3d;' : 
+                              highlightedIngredients.maybe.includes(ingredient) ? 'color: #f39c11;' : '';
+                return `<span style="${style}">${ingredient}</span>`;
+            }).join(', ');
 
-                productDiv.innerHTML = `
+            resultsDiv.innerHTML += `
+                <div class="product">
                     <img src="${product.image}" alt="${product.name}">
                     <div>
                         <h2>${product.name}</h2>
                         <p><strong>Ingredients:</strong> ${ingredientsHTML}</p>
                     </div>
-                `;
-
-                resultsDiv.appendChild(productDiv);
-            }));
-        } else {
-            const text = await response.text();
-            console.error('Expected JSON but got:', text);
-            document.getElementById('results').innerHTML = `<p>${text}</p>`;
-        }
+                </div>
+            `;
+        }));
     } catch (error) {
-        console.error('Error fetching products from Supabase:', error);
-        document.getElementById('results').innerHTML = `<p>Error fetching products.</p>`;
+        console.error('Error fetching or processing products:', error);
+        resultsDiv.innerHTML = `<p>${error.message}</p>`;
     }
 }
+
+
 
 
 
