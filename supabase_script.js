@@ -62,7 +62,7 @@ export async function highlightIngredientsAI(ingredients, dietaryRequirements) {
             temperature: 0.2,
             max_tokens: 1024,
         });
-
+        
         return response.choices[0]?.message?.parsed || { no: [], maybe: [] };
     } catch (error) {
         console.error('Error querying OpenAI:', error);

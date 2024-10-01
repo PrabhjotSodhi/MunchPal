@@ -2,14 +2,6 @@
 
 console.log('Script loaded successfully');  // Add this line to verify the script is running
 
-let dietary = {};
-
-async function fetchDietary() {
-    console.log('fetchDietary called');  // Add logging here to verify the function is called
-    const response = await fetch('/dietary');
-    dietary = await response.json();
-}
-
 function highlightIngredients(ingredients, vegan, vegetarian, glutenFree) {
     console.log('highlightIngredients called');  // Add logging here to verify the function is called
     const ingredientList = ingredients.split(', ');
@@ -84,45 +76,8 @@ async function searchProductOnSupabase() {
 }
 
 
-
-
-
-
-async function searchProduct() {
-    console.log('searchProduct called');  // Add logging here to verify the function is called
-    const productSearch = document.getElementById('product-search').value;
-    const vegan = document.getElementById('vegan').checked;
-    const vegetarian = document.getElementById('vegetarian').checked;
-    const glutenFree = document.getElementById('gluten-free').checked;
-
-    const response = await fetch(`/search?product=${productSearch}`);
-    const products = await response.json();
-
-    const resultsDiv = document.getElementById('results');
-    resultsDiv.innerHTML = '';
-
-    products.forEach(product => {
-        if (product.ingredients) {
-            const productDiv = document.createElement('div');
-            productDiv.classList.add('product');
-
-            productDiv.innerHTML = `
-                <img src="${product.image}" alt="${product.name}">
-                <div>
-                    <h2>${product.name}</h2>
-                    <p><strong>Ingredients:</strong> ${highlightIngredients(product.ingredients, vegan, vegetarian, glutenFree)}</p>
-                </div>
-            `;
-
-            resultsDiv.appendChild(productDiv);
-        }
-    });
-}
-
 window.onload = () => {
-    fetchDietary();
     console.log('Window loaded, setting up event listeners...');
-    // Check if the element exists before attaching the event listener
     const searchButtonSupabase = document.getElementById('search-button-supabase');
     const searchButton = document.getElementById('search-button');
     
