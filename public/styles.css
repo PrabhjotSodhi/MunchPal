@@ -84,41 +84,42 @@ body {
 
 /* Card Design */
 .product {
-    background-color: #080807; /* Equivalent to bg-dark-charcoal */
-    border: 4px solid rgba(204, 204, 204, 0.15); /* Border color and opacity */
-    border-radius: 1rem; /* Equivalent to rounded-xl */
+    background-color: #080807;
+    border: 1px solid #ccc;
+    border-radius: 8px;
     padding: 15px;
-    width: calc(50% - 15px); /* Two columns */
+    width: calc(50% - 15px);
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     align-items: center;
-    overflow: hidden;
-    transition: border-color 0.15s ease-in; /* Smooth transition */
 }
 
-.product:hover {
-    border-color: rgba(204, 204, 204, 0.5); /* Change border opacity on hover */
-}
 
 .product img {
     width: 100px;
     height: 100px;
     object-fit: cover;
-    margin-bottom: 10px;
+    margin-right: 15px; /* Adds space between image and text */
+}
+
+.product-details {
+    display: flex;
+    flex-direction: column;
 }
 
 .product h2 {
     font-size: 1rem;
     margin-bottom: 5px;
-    color: #e8e8e3; /* Lighter text color */
+    color: #e8e8e3;
 }
 
 .product p {
     font-size: 0.9rem;
-    color: #d1d1c7; /* Slightly lighter text for descriptions */
-    text-align: center;
+    color: #d1d1c7;
+    text-align: left;
 }
+
 
 @media (max-width: 600px) {
     .product {

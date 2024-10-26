@@ -62,7 +62,7 @@ async function searchProductOnSupabase() {
             resultsDiv.innerHTML += `
                 <div class="product">
                     <img src="${product.image}" alt="${product.name}">
-                    <div>
+                    <div class="product-details">
                         <h2>${product.name}</h2>
                         <p><strong>Ingredients:</strong> ${ingredientsHTML}</p>
                     </div>
