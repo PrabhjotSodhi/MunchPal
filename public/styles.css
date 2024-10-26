@@ -6,8 +6,8 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f8f9fa;
+    font-family: 'Manrope', "Inter", sans-serif;
+    background-color: #e8e8e3;
     color: #333;
     display: flex;
     justify-content: center;
@@ -84,15 +84,21 @@ body {
 
 /* Card Design */
 .product {
-    background-color: white;
-    border: 1px solid #ccc;
-    border-radius: 8px;
+    background-color: #080807; /* Equivalent to bg-dark-charcoal */
+    border: 4px solid rgba(204, 204, 204, 0.15); /* Border color and opacity */
+    border-radius: 1rem; /* Equivalent to rounded-xl */
     padding: 15px;
     width: calc(50% - 15px); /* Two columns */
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     align-items: center;
+    overflow: hidden;
+    transition: border-color 0.15s ease-in; /* Smooth transition */
+}
+
+.product:hover {
+    border-color: rgba(204, 204, 204, 0.5); /* Change border opacity on hover */
 }
 
 .product img {
@@ -105,12 +111,12 @@ body {
 .product h2 {
     font-size: 1rem;
     margin-bottom: 5px;
-    color: #333;
+    color: #e8e8e3; /* Lighter text color */
 }
 
 .product p {
     font-size: 0.9rem;
-    color: #666;
+    color: #d1d1c7; /* Slightly lighter text for descriptions */
     text-align: center;
 }
 

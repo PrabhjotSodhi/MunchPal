@@ -41,12 +41,18 @@ export async function searchProductByName(query) {
     }
 }
 
+// distance calculation based on how many transforms needed fro string a = string b
+// returns a word similarity score - this ingredient might equal other ingredients -> refined and alias of different ingredients
+// unique data asset - seperate from the main function, recognise more things and provide more information to the model
+
+
 // Function to filter ingredients based on dietary requirements
+// LangGraph - automated governance, automated responses
 export async function highlightIngredientsAI(ingredients, dietaryRequirements) {
     try {
         const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-        const response = await openai.beta.chat.completions.parse({
+        const initialResponse = await openai.beta.chat.completions.parse({
             model: "gpt-4o-2024-08-06",
             response_format: zodResponseFormat(
                 z.object({
@@ -56,14 +62,31 @@ export async function highlightIngredientsAI(ingredients, dietaryRequirements) {
                 "dietary_exclusion"
             ),
             messages: [
-                { role: "system", content: `Categorize the ingredients into 'no' or 'maybe' based on the user's dietary needs.` },
-                { role: "user", content: `Evaluate if the ingredient list "${ingredients}" is compliant with the following dietary requirements: ${dietaryRequirements}. Provide valid JSON output of 'no' and 'maybe' with ingredients categorized accordingly.` }
+                { role: "system", content: `Categorize ingredients into 'no' or 'maybe' for the user's dietary needs.` },
+                { role: "user", content: `Evaluate if the ingredient list "${ingredients}" complies with the dietary requirements: ${dietaryRequirements}. Provide valid JSON output in the format { "no": [], "maybe": [] } with ingredients categorized accordingly.` }
             ],
             temperature: 0.2,
             max_tokens: 1024,
         });
         
-        return response.choices[0]?.message?.parsed || { no: [], maybe: [] };
+        const refinedResponse = await openai.beta.chat.completions.parse({
+            model: "gpt-4o-2024-08-06",
+            response_format: zodResponseFormat(
+                z.object({
+                    no: z.array(z.string()).optional(),
+                    maybe: z.array(z.string()).optional(),
+                }),
+                "dietary_exclusion"
+            ),
+            messages: [
+                { role: "system", content: `You are an assistant helping to verify dietary compliance categorization. Items in "no" should be highlighted in red, and items in "maybe" in yellow.` },
+                { role: "user", content: `Given the following initial categorization: ${JSON.stringify(initialResponse.choices[0]?.message?.parsed)}, refine this result based on these dietary requirements: ${dietaryRequirements}. Clearly exclude ingredients that are obviously compliant, like "water" in a vegan diet. Ensure all ingredients are correctly categorized as 'no' or 'maybe' with the specified highlighting format.` }
+            ],
+            temperature: 0.2,
+            max_tokens: 256,
+        });
+        
+        return refinedResponse.choices[0]?.message?.parsed || { no: [], maybe: [] };
     } catch (error) {
         console.error('Error querying OpenAI:', error);
         return { no: [], maybe: [] };
